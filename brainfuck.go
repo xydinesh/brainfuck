@@ -3,6 +3,7 @@ package brainfuck
 
 import (
 	"fmt"
+	"strings"
 )
 
 /*
@@ -34,6 +35,7 @@ type BFInterpretter struct {
 	tape      []int
 	stackLoop []int
 	inputTape []string
+	output    []string
 }
 
 const maxTapeSize = 30000
@@ -69,6 +71,11 @@ func (bf *BFInterpretter) Debug() (pointer int, tapeValue int, tapeLenght int) {
 	return bf.dataPointer, bf.tape[bf.dataPointer], len(bf.tape)
 }
 
+func (bf *BFInterpretter) GetOutput() string {
+	outputString := strings.Join(bf.output, "")
+	return outputString
+}
+
 func (bf *BFInterpretter) Interpret(str string) string {
 	// Working on the interpretter
 	for _, inputByte := range str {
@@ -80,6 +87,7 @@ func (bf *BFInterpretter) Interpret(str string) string {
 		switch r {
 		case ".":
 			fmt.Printf("%s", string(bf.tape[bf.dataPointer]))
+			bf.output = append(bf.output, fmt.Sprintf("%s", string(bf.tape[bf.dataPointer])))
 			bf.outputValue = fmt.Sprintf("%+q", bf.tape[bf.dataPointer])
 		case "+":
 			bf.tape[bf.dataPointer]++
