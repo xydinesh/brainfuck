@@ -28,14 +28,28 @@ There are eight commands:
 type BFInterpreter struct {
 	dataPointer int
 	tape        []int
+	inputValue  int
 }
 
 const maxTapeSize = 30000
 
 func NewInterpretter() *BFInterpreter {
 	interpretter := new(BFInterpreter)
-	interpretter.tape = make([]int, 1024, maxTapeSize)
+	interpretter.tape = make([]int, 1, maxTapeSize)
 	return interpretter
+}
+
+// Rest https://stackoverflow.com/questions/30614165
+func (bf *BFInterpreter) Reset() {
+	if len(bf.tape) == 0 {
+		return
+	}
+
+	bf.tape[0] = 0
+	for bp := 1; bp < len(bf.tape); bp *= 2 {
+		copy(bf.tape[bp:], bf.tape[:bp])
+	}
+	bf.dataPointer = 0
 }
 
 func (bf *BFInterpreter) Interpret(str string) string {
@@ -43,9 +57,26 @@ func (bf *BFInterpreter) Interpret(str string) string {
 	for _, r := range str {
 		switch string(r) {
 		case ".":
-			return fmt.Sprintf("%d", bf.tape[bf.dataPointer])
+			return fmt.Sprintf("%+q", bf.tape[bf.dataPointer])
 		case "+":
 			bf.tape[bf.dataPointer]++
+			break
+		case "-":
+			bf.tape[bf.dataPointer]--
+			break
+		case ">":
+			if bf.dataPointer++; bf.dataPointer >= len(bf.tape) {
+				bf.tape = append(bf.tape, 0)
+			}
+			break
+		case "<":
+			if bf.dataPointer > 0 {
+				bf.dataPointer--
+			}
+			break
+		case ",":
+			fmt.Scanf("%d\n", bf.inputValue)
+			bf.tape[bf.dataPointer] = bf.inputValue
 			break
 		}
 	}
