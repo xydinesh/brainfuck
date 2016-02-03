@@ -1,6 +1,10 @@
 // package brainfuck defines interpretter for brinfuck programs
 package brainfuck
 
+import (
+	"fmt"
+)
+
 /*
 Any character not "><+-.,[]" (excluding quotation marks) is ignored.
 
@@ -21,7 +25,29 @@ There are eight commands:
 
 [ and ] form a while loop. Obviously, they must be balanced.
 */
+type BFInterpreter struct {
+	dataPointer int
+	tape        []int
+}
 
-func Interpret(s string) string {
-	return ""
+const maxTapeSize = 30000
+
+func NewInterpretter() *BFInterpreter {
+	interpretter := new(BFInterpreter)
+	interpretter.tape = make([]int, 1024, maxTapeSize)
+	return interpretter
+}
+
+func (bf *BFInterpreter) Interpret(str string) string {
+	// Working on the interpretter
+	for _, r := range str {
+		switch string(r) {
+		case ".":
+			return fmt.Sprintf("%d", bf.tape[bf.dataPointer])
+		case "+":
+			bf.tape[bf.dataPointer]++
+			break
+		}
+	}
+	return str
 }
