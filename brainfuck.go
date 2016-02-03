@@ -106,7 +106,7 @@ func (bf *BFInterpretter) Interpret(str string) string {
 			}
 			break
 		case ",":
-			fmt.Scanf("%d\n", bf.inputValue)
+			fmt.Scanf("%c\n", &bf.inputValue)
 			bf.tape[bf.dataPointer] = bf.inputValue
 			break
 		case "[":
