@@ -25,22 +25,29 @@ There are eight commands:
 
 [ and ] form a while loop. Obviously, they must be balanced.
 */
-type BFInterpreter struct {
-	dataPointer int
-	tape        []int
-	inputValue  int
+type BFInterpretter struct {
+	dataPointer  int
+	inputValue   int
+	inputPointer int
+	outputValue  string
+
+	tape      []int
+	stackLoop []int
+	inputTape []string
 }
 
 const maxTapeSize = 30000
 
-func NewInterpretter() *BFInterpreter {
-	interpretter := new(BFInterpreter)
+func NewInterpretter() *BFInterpretter {
+	interpretter := new(BFInterpretter)
 	interpretter.tape = make([]int, 1, maxTapeSize)
+	interpretter.stackLoop = make([]int, 1)
+	interpretter.inputTape = make([]string, 1)
 	return interpretter
 }
 
 // Rest https://stackoverflow.com/questions/30614165
-func (bf *BFInterpreter) Reset() {
+func (bf *BFInterpretter) Reset() {
 	if len(bf.tape) == 0 {
 		return
 	}
@@ -50,14 +57,30 @@ func (bf *BFInterpreter) Reset() {
 		copy(bf.tape[bp:], bf.tape[:bp])
 	}
 	bf.dataPointer = 0
+
+	bf.inputTape[0] = ""
+	for bp := 1; bp < len(bf.inputTape); bp *= 2 {
+		copy(bf.inputTape[bp:], bf.inputTape[:bp])
+	}
+	bf.inputPointer = 0
 }
 
-func (bf *BFInterpreter) Interpret(str string) string {
+func (bf *BFInterpretter) Debug() (pointer int, tapeValue int, tapeLenght int) {
+	return bf.dataPointer, bf.tape[bf.dataPointer], len(bf.tape)
+}
+
+func (bf *BFInterpretter) Interpret(str string) string {
 	// Working on the interpretter
-	for _, r := range str {
-		switch string(r) {
+	for _, inputByte := range str {
+		bf.inputTape = append(bf.inputTape, string(inputByte))
+	}
+
+	for ; bf.inputPointer < len(bf.inputTape); bf.inputPointer++ {
+		r := bf.inputTape[bf.inputPointer]
+		switch r {
 		case ".":
-			return fmt.Sprintf("%+q", bf.tape[bf.dataPointer])
+			fmt.Printf("%s", string(bf.tape[bf.dataPointer]))
+			bf.outputValue = fmt.Sprintf("%+q", bf.tape[bf.dataPointer])
 		case "+":
 			bf.tape[bf.dataPointer]++
 			break
@@ -78,7 +101,20 @@ func (bf *BFInterpreter) Interpret(str string) string {
 			fmt.Scanf("%d\n", bf.inputValue)
 			bf.tape[bf.dataPointer] = bf.inputValue
 			break
+		case "[":
+			bf.stackLoop = append(bf.stackLoop, bf.inputPointer)
+			break
+		case "]":
+			if tapeValue := bf.tape[bf.dataPointer]; tapeValue == 0 {
+				lenStackLoop := len(bf.stackLoop) - 1
+				// Delete last element, ... is important
+				// s = append(s[:0], s[:len(s) - 1]...)
+				bf.stackLoop = append(bf.stackLoop[:0], bf.stackLoop[:lenStackLoop]...)
+			} else {
+				// Reset inputPointer to beginning of the loop
+				bf.inputPointer = bf.stackLoop[len(bf.stackLoop)-1]
+			}
 		}
 	}
-	return str
+	return ""
 }
