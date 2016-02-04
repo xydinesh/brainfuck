@@ -25,29 +25,8 @@ There are eight commands:
 
 [ and ] form a while loop. Obviously, they must be balanced.
 */
-type BFInterpreter struct {
-	dataPointer int
-	tape        []int
-}
 
-const maxTapeSize = 30000
-
-func NewInterpretter() *BFInterpreter {
-	interpretter := new(BFInterpreter)
-	interpretter.tape = make([]int, 1024, maxTapeSize)
-	return interpretter
-}
-
-func (bf *BFInterpreter) Interpret(str string) string {
-	// Working on the interpretter
-	for _, r := range str {
-		switch string(r) {
-		case ".":
-			return fmt.Sprintf("%d", bf.tape[bf.dataPointer])
-		case "+":
-			bf.tape[bf.dataPointer]++
-			break
-		}
-	}
-	return str
-}
+//interpretter
+//newinterpretter
+//interpret
+//interpretprint
